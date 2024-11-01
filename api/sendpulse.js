@@ -12,12 +12,11 @@
 
 var https = require('https');
 var crypto = require('crypto');
-var fs = require('fs');
 
 var API_URL = 'api.sendpulse.com';
 var API_USER_ID = '';
 var API_SECRET = '';
-var TOKEN_STORAGE = '';
+var TOKEN_STORAGE;
 var TOKEN = '';
 
 var ERRORS = {
@@ -49,18 +48,6 @@ function base64(data) {
     return b.toString('base64');
 }
 
-/**
- * Create directory
- *
- * @param directory
- */
-function mkdirSyncRecursive(directory) {
-    var path = directory.replace(/\/$/, '').split('/');
-    for (var i = 1; i <= path.length; i++) {
-        var segment = path.slice(0, i).join('/');
-        segment.length > 0 && !fs.existsSync(segment) ? fs.mkdirSync(segment) : null;
-    }
-};
 
 /**
  * Sendpulse API initialization
@@ -80,18 +67,8 @@ function init(user_id, secret, storage, callback) {
         }
     }
 
-    if (!fs.existsSync(TOKEN_STORAGE)) {
-        mkdirSyncRecursive(TOKEN_STORAGE);
-    }
-
-    if (TOKEN_STORAGE.substr(-1) !== '/') {
-        TOKEN_STORAGE += '/';
-    }
-
     var hashName = md5(API_USER_ID + '::' + API_SECRET);
-    if (fs.existsSync(TOKEN_STORAGE + hashName)) {
-        TOKEN = fs.readFileSync(TOKEN_STORAGE + hashName, {encoding: 'utf8'});
-    }
+    TOKEN = TOKEN_STORAGE.getToken(hashName)
 
     if (!TOKEN.length) {
         getToken(callback);
@@ -207,9 +184,9 @@ function getToken(callback) {
             return;
         }
 
-        TOKEN = data.access_token;
+        TOKEN = data.access_token ?? "";
         var hashName = md5(API_USER_ID + '::' + API_SECRET);
-        fs.writeFileSync(TOKEN_STORAGE + hashName, TOKEN);
+        TOKEN_STORAGE.setToken(hashName, TOKEN);
         callback(TOKEN)
     }
 }

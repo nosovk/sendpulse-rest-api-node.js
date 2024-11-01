@@ -5,7 +5,9 @@
  * https://sendpulse.com/api
  */
 
-var sendpulse = require("sendpulse-api");
+var sendpulse = require("./api/sendpulse");
+// var memoryProvider = require("./api/memory-provider");
+var fsProvider = require("./api/fs-provider");
 
 /*
  * https://login.sendpulse.com/settings/#api
@@ -14,9 +16,10 @@ var sendpulse = require("sendpulse-api");
 var API_USER_ID="USER_ID";
 var API_SECRET="USER_SECRET";
 
-var TOKEN_STORAGE="/tmp/";
+var provider = new fsProvider("./tmp/");
+// var provider = new memoryProvider();
 
-sendpulse.init(API_USER_ID, API_SECRET, TOKEN_STORAGE, function(token) {
+sendpulse.init(API_USER_ID, API_SECRET, provider, function(token) {
     if (token && token.is_error) {
         // error handling
     }
