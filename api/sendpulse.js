@@ -10,8 +10,8 @@
 
 'use strict';
 
-var https = require('https');
-var crypto = require('crypto');
+var https = require('node:https');
+var crypto = require('node:crypto');
 
 var API_URL = 'api.sendpulse.com';
 var API_USER_ID = '';
