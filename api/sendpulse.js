@@ -10,7 +10,7 @@
 
 'use strict';
 
-var https = require('node:https');
+// var https = require('node:https');
 var crypto = require('node:crypto');
 
 var API_URL = 'api.sendpulse.com';
@@ -89,76 +89,56 @@ function init(user_id, secret, storage, callback) {
  *        Define the function  that will be called
  *        when a response is received.
  */
-function sendRequest(path, method, data, useToken, callback) {
-    var headers = {};
-    headers['Content-Type'] = 'application/json';
-    headers['Content-Length'] = Buffer.byteLength(JSON.stringify(data));
+function sendRequest(path, method = 'POST', data, useToken = false, callback) {
+    var headers = {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(JSON.stringify(data)).toString(),
+    };
 
     if (useToken && TOKEN.length) {
         headers['Authorization'] = 'Bearer ' + TOKEN;
     }
-    if (method === undefined) {
-        method = 'POST';
-    }
-    if (useToken === undefined) {
-        useToken = false;
-    }
 
     var options = {
-        //uri: API_URL,
-        path: '/' + path,
-        port: 443,
-        hostname: API_URL,
         method: method,
         headers: headers,
+        body: JSON.stringify(data),
     };
 
-    var req = https.request(
-        options,
-        function (response) {
-            var str = '';
-            response.on('data', function (chunk) {
-                str += chunk;
-            });
+    fetch(`https://${API_URL}/${path}`, options)
+        .then(response => response.text().then(str => {
+            let answer;
 
-            response.on('end', function () {
-                try {
-                    var answer = JSON.parse(str);
-                } catch (ex) {
-                    var answer = returnError(ERRORS.INVALID_RESPONSE);
-                }
+            try {
+                answer = JSON.parse(str);
+            } catch (ex) {
+                answer = returnError(ERRORS.INVALID_RESPONSE);
+            }
 
-                if (response.statusCode === 401) {
-                    if (answer.error === 'invalid_client') {
-                        callback(returnError(ERRORS.INVALID_CREDENTIALS));
-                        return;
-                    }
-
-                    getToken(function (result) {
-                        if (result && result.is_error === 1) {
-                            callback(result);
-                            return;
-                        }
-
-                        sendRequest(path, method, data, true, callback);
-                    });
+            if (response.status === 401) {
+                if (answer.error === 'invalid_client') {
+                    callback(returnError(ERRORS.INVALID_CREDENTIALS));
                     return;
                 }
 
-                callback(answer);
-            });
-        }
-    );
-    req.write(JSON.stringify(data));
-    req.on('error', function (error) {
-        if (error.message !== undefined) {
-            var answer = returnError(error.message, error.errno);
-        } else {
-            var answer = returnError(error.code, error.errno);
-        }
-        callback(answer);
-    });
-    req.end();
+                getToken(function (result) {
+                    if (result && result.is_error === 1) {
+                        callback(result);
+                        return;
+                    }
+
+                    // Рекурсивно вызываем функцию с useToken = true
+                    sendRequest(path, method, data, true, callback);
+                });
+                return;
+            }
+
+            callback(answer);
+        }))
+        .catch(error => {
+            const answer = error.message ? returnError(error.message, error.errno) : returnError(error.code, error.errno);
+            callback(answer);
+        });
 }
 
 /**
