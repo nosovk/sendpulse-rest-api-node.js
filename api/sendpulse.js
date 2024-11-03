@@ -10,8 +10,6 @@
 
 'use strict';
 
-// var https = require('node:https');
-var crypto = require('node:crypto');
 
 var API_URL = 'api.sendpulse.com';
 var API_USER_ID = '';
@@ -26,15 +24,19 @@ var ERRORS = {
 };
 
 /**
- * MD5
+ * SHA256
  *
  * @param data
  * @return string
  */
-function md5(data) {
-    var md5sum = crypto.createHash('md5');
-    md5sum.update(data);
-    return md5sum.digest('hex');
+async function sha256(data) {
+    const encoder = new TextEncoder();
+    const dataBuffer = encoder.encode(data);
+    return crypto.subtle.digest('SHA-256', dataBuffer).then(()=>{
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    });
 }
 
 /**
@@ -67,7 +69,7 @@ function init(user_id, secret, storage, callback) {
         }
     }
 
-    var hashName = md5(API_USER_ID + '::' + API_SECRET);
+    var hashName = sha256(API_USER_ID + '::' + API_SECRET);
     TOKEN = TOKEN_STORAGE.getToken(hashName)
 
     if (!TOKEN.length) {
@@ -165,7 +167,7 @@ function getToken(callback) {
         }
 
         TOKEN = data.access_token ?? "";
-        var hashName = md5(API_USER_ID + '::' + API_SECRET);
+        var hashName = sha256(API_USER_ID + '::' + API_SECRET);
         TOKEN_STORAGE.setToken(hashName, TOKEN);
         callback(TOKEN)
     }
