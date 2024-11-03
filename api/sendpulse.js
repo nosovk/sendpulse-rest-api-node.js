@@ -32,7 +32,7 @@ var ERRORS = {
 async function sha256(data) {
     const encoder = new TextEncoder();
     const dataBuffer = encoder.encode(data);
-    return crypto.subtle.digest('SHA-256', dataBuffer).then(()=>{
+    return crypto.subtle.digest('SHA-256', dataBuffer).then((hashBuffer)=>{
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         return hashHex;
