@@ -1287,14 +1287,14 @@ function smsDeleteCampaign(callback, campaign_id) {
 }
 
 /**
- * Send row request to RestAPI
+ * Send raw request to RestAPI
  *
  * @param path
  * @param method
  * @param data
  * @param callback
  */
-function sendRowRequest(path, method, data, callback) {
+function sendRawRequest(path, method, data, callback) {
     if (data === undefined) {
         data = {};
     }
@@ -1368,4 +1368,4 @@ exports.smsCancelCampaign = smsCancelCampaign;
 exports.smsGetCampaignCost = smsGetCampaignCost;
 exports.smsDeleteCampaign = smsDeleteCampaign;
 exports.getToken = getToken;
-exports.sendRequest = sendRowRequest;
+exports.sendRequest = sendRawRequest;
