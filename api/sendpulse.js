@@ -1245,7 +1245,81 @@ function smsDeleteCampaign(callback, campaign_id) {
     sendRequest('sms/campaigns', 'DELETE', data, true, callback);
 }
 
+
+
 /**
+ * @typedef {Object} contact_data
+ * @property {number} responsibleId - Team member ID assigned to the contact. Required. Obtainable via the "Get a list of team members" method.
+ * @property {string} [firstName] - Contact's first name.
+ * @property {string} [lastName] - Contact's last name.
+ * @property {Array.<string>} [phones] - List of contact's phone numbers.
+ * @property {Array.<string>} [emails] - List of contact's email addresses.
+ * @property {Array.<string>} [tags] - List of tags assigned to the contact.
+ * @property {Array.<ContactAttribute>} [attributes] - List of attributes for the contact. Each attribute can either reference an existing attribute by ID or define a new attribute.
+ * @property {Array.<string>} [messengers] - List of messenger IDs associated with the contact.
+ * @property {Array.<string>} [attachments] - List of attachments associated with the contact.
+ */
+
+/**
+ * @typedef {Object} ContactAttribute
+ * @property {string} name - The attribute name. Required if creating a new attribute.
+ * @property {string} value - The attribute value. Required.
+ * @property {number} [type] - Type of attribute. Options: 0 - text, 1 - number, 2 - date, 3 - link, 4 - select, 5 - multiSelect.
+ * @property {string} [attributeId] - Attribute ID. Required if assigning an existing attribute.
+ */
+
+/**
+ * Creates a new contact in SendPulse CRM.
+ * @param {function} callback - Callback function to handle the response.
+ * @param {ContactData} contact_data - The data for the new contact.
+ */
+function crmCreateContact(callback, contact_data) {
+    if (contact_data === undefined) {
+        return callback(returnError('Empty contact data'));
+    }
+    const path = `/crm/v1/contacts`;
+    const method = 'POST'
+    sendRequest(path, method, contact_data, true, callback);
+}
+
+/**
+ * Retrieves a contact by ID from SendPulse CRM.
+ * @param {function} callback - Callback function to handle the response.
+ * @param {string} contact_id - The unique ID of the contact to retrieve.
+ */
+function crmGetContactById(callback, contact_id) {
+    if (!contact_id) {
+        return callback(returnError('Contact ID is required'));
+    }
+    
+    const path = `/crm/v1/contacts/${contact_id}`;
+    const method = 'GET';
+    
+    sendRequest(path, method, null, true, callback);
+}
+
+/**
+ * Batch updates multiple attributes for a contact in SendPulse CRM.
+ * @param {function} callback - Callback function to handle the response.
+ * @param {string} contact_id - The unique ID of the contact to update.
+ * @param {Object} data
+ */
+function crmBatchUpdateContactAttributes(callback, contact_id, data) {
+    if (!contact_id) {
+        return callback(returnError('Contact ID is required'));
+    }
+    if (!data) {
+        return callback(returnError('Data is required'));
+    }
+
+    const path = `/crm/v1/contacts/${contact_id}/attributes/batch`;
+    const method = 'POST';
+
+    sendRequest(path, method, data, true, callback);
+}
+
+
+/** 
  * Send row request to RestAPI
  *
  * @param path
@@ -1328,3 +1402,6 @@ exports.smsGetCampaignCost = smsGetCampaignCost;
 exports.smsDeleteCampaign = smsDeleteCampaign;
 exports.getToken = getToken;
 exports.sendRequest = sendRowRequest;
+exports.crmCreateContact=crmCreateContact;
+exports.crmGetContactById=crmGetContactById;
+exports.crmBatchUpdateContactAttributes=crmBatchUpdateContactAttributes;

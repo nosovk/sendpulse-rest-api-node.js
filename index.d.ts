@@ -116,3 +116,8 @@ export function smtpVerifyDomain(callback: any, email: any): any;
 
 export function updateEmailVariables(callback: any, id: any, email: any, variables: any): any;
 
+export function crmCreateContact(callback: any, contact_data: any): any;
+
+export function crmGetContactById(callback: any, contact_id: any): any;
+
+export function crmBatchUpdateContactAttributes(callback: any, contact_id: any, data: any): any;
