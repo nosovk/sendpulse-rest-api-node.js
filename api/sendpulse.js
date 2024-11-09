@@ -1244,7 +1244,20 @@ function smsDeleteCampaign(callback, campaign_id) {
     };
     sendRequest('sms/campaigns', 'DELETE', data, true, callback);
 }
-
+/**
+ * Updates an existing contact in SendPulse CRM.
+ * @param {function} callback - Callback function to handle the response.
+ * @param {number} contactId - The ID of the contact to update.
+ * @param {Object} contact_data - The data to update the contact with.
+ */
+function crmUpdateContact(callback, contactId, contact_data) {
+    if (contact_data === undefined) {
+        return callback(returnError('Empty contact data'));
+    }
+    const path = `/crm/v1/contacts/${contactId}`;
+    const method = 'PUT';
+    sendRequest(path, method, contact_data, true, callback);
+}
 
 /**
  * Creates a new contact in SendPulse CRM.
@@ -1275,6 +1288,8 @@ function crmGetContactById(callback, contact_id) {
     
     sendRequest(path, method, null, true, callback);
 }
+
+
 
 /**
  * Batch updates multiple attributes for a contact in SendPulse CRM.
@@ -1382,4 +1397,5 @@ exports.getToken = getToken;
 exports.sendRequest = sendRowRequest;
 exports.crmCreateContact=crmCreateContact;
 exports.crmGetContactById=crmGetContactById;
+exports.crmUpdateContact=crmUpdateContact;
 exports.crmBatchUpdateContactAttributes=crmBatchUpdateContactAttributes;

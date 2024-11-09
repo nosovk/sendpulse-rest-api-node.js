@@ -2,6 +2,7 @@
 
 import { BatchContactAttributeData } from "./types/batch-contact-attribute-data";
 import { CreateContactData } from "./types/create-contact-data";
+import { UpdateContactData } from "./types/update-contact-data";
 
 export function activateSender(callback: any, senderEmail: any, code: any): any;
 
@@ -122,5 +123,7 @@ export function updateEmailVariables(callback: any, id: any, email: any, variabl
 export function crmCreateContact(callback: any, contact_data: CreateContactData): any;
 
 export function crmGetContactById(callback: any, contact_id: any): any;
+
+export function crmUpdateContact(callback: any, contact_id: any, data: UpdateContactData): any;
 
 export function crmBatchUpdateContactAttributes(callback: any, contact_id: any, data: BatchContactAttributeData): any;
