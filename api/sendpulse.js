@@ -104,9 +104,11 @@ function sendRequest(path, method = 'POST', data, useToken = false, callback) {
     var options = {
         method: method,
         headers: headers,
-        body: JSON.stringify(data),
     };
-
+    if (data && typeof data === "object" && Object.keys(data).length > 0){
+        options.body = JSON.stringify(data);
+    }
+    
     fetch(`https://${API_URL}/${path}`, options)
         .then(response => response.text().then(str => {
             let answer;
